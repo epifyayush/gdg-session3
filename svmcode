@@ -9,18 +9,22 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 # Load the dataset
 df = pd.read_csv("/diabetes (2).csv")
 
-# Display dataset information
+# Display first and last few rows of the dataset
 df.head(10)
 df.tail()
+
+# Display dataset summary statistics
 df.describe()
+
+# Display the shape (number of rows and columns) of the dataset
 df.shape
 
-# Check for missing values
+# Check for missing values in the dataset
 print("\n Missing values: \n", df.isnull().sum())
 
-# Separate features and target variable
-x = df.drop(columns=["Outcome"])
-y = df["Outcome"]
+# Separate features (X) and target variable (y)
+x = df.drop(columns=["Outcome"])  # Remove 'Outcome' column from features
+y = df["Outcome"]  # Target column (0 = non-diabetic, 1 = diabetic)
 
 # Visualizing diabetes outcome distribution
 counts = df['Outcome'].value_counts()
@@ -31,7 +35,7 @@ plt.ylabel("Count")
 plt.title("Distribution of Diabetes Outcome")
 plt.show()
 
-# Visualizing glucose levels distribution
+# Visualizing glucose levels distribution based on diabetes outcome
 plt.hist(df[df['Outcome'] == 0]["Glucose"], bins=20, color='blue', alpha=0.5, label='No Diabetes')
 plt.hist(df[df['Outcome'] == 1]["Glucose"], bins=20, color='orange', alpha=0.5, label='Diabetes')
 plt.xlabel("Glucose Level")
@@ -40,26 +44,28 @@ plt.title("Distribution of Glucose Levels for Diabetes Outcome")
 plt.legend()
 plt.show()
 
-# Split the dataset
+# Split the dataset into training and testing sets (80% train, 20% test)
 X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
-# Scale the features
+# Standardize the feature values for better model performance
 scalar = StandardScaler()
 X_train_scaled = scalar.fit_transform(X_train)
 X_test_scaled = scalar.transform(X_test)
 
-# Train the SVM model
+# Train the Support Vector Machine (SVM) model with a linear kernel
 model = SVC(kernel='linear', C=1.0)
 model.fit(X_train_scaled, y_train)
+
+# Make predictions on the test set
 y_pred = model.predict(X_test_scaled)
 
-# Evaluate the model
+# Evaluate model performance
 accuracy = accuracy_score(y_test, y_pred) * 100
 print(f"Accuracy: {accuracy:.2f}%")
 print("Classification Report:\n", classification_report(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
-# Predict a new patient outcome
+# Predict the diabetes outcome for a new patient
 new_patient = np.array([[2, 250, 30, 45, 100, 35.0, 0.5, 55]])
 new_patient_scaled = scalar.transform(new_patient)
 prediction = model.predict(new_patient_scaled)
